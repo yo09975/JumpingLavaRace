@@ -4,24 +4,48 @@ using System.Collections;
 public class CameraSnap : MonoBehaviour {
 	
 	public float distance = -10f;
+	public float verticalOffset = 5f;
 	
-	GameObject target;
-	GameObject target2;
+	GameObject[] players;
+	GameObject leader;
+	GameObject splash;
+	
+	void Start()
+	{
+		players = GameObject.FindGameObjectsWithTag("Player");
+		
+		splash = GameObject.FindGameObjectWithTag("Water Splash");
+	}
+	
 	// Update is called once per frame
-	void Update () {
-		target = GameObject.Find("Player1") as GameObject;
-		target2 = GameObject.Find("Player2") as GameObject;
+	void LateUpdate () {
 		
-		if(target.transform.position.x > target2.transform.position.x)
+		foreach (GameObject obj in players)
 		{
-			transform.position = target.transform.position + new Vector3(0, 0, distance);
-			transform.LookAt(target.transform);	
+			if (leader == null)
+			{
+				if (obj.transform.position.y > 0)
+				{
+					leader = obj;
+				}
+			}
+			else
+			{
+				if (obj.transform.position.x > leader.transform.position.x)
+				{
+					leader = obj;
+				}
+			}
 		}
 		
-		if(target2.transform.position.x > target.transform.position.x)
+		if (leader == null)
 		{
-			transform.position = target.transform.position + new Vector3(0, 0, distance);
-			transform.LookAt(target2.transform);
+			leader = splash;
 		}
+		
+		transform.position = new Vector3(leader.transform.position.x, verticalOffset, distance);
+		//transform.LookAt(leader.transform);	
+		
+		leader = null;
 	}
 }
