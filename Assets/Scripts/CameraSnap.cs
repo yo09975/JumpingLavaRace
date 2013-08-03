@@ -45,7 +45,7 @@ public class CameraSnap : MonoBehaviour {
 		
 		transform.position = new Vector3(leader.transform.position.x, verticalOffset, distance);
 		//transform.LookAt(leader.transform);	
-		Debug.Log("Attempting to break the repo");
+	
 		leader = null;
 	}
 }
