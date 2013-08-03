@@ -20,7 +20,7 @@ public class CameraSnap : MonoBehaviour {
 		
 		if(target2.transform.position.x > target.transform.position.x)
 		{
-			transform.position = target.transform.position + new Vector3(0, 0, distance);
+			transform.position = target2.transform.position + new Vector3(0, 0, distance);
 			transform.LookAt(target2.transform);
 		}
 	}
