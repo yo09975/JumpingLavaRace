@@ -40,7 +40,7 @@ public class PlayerRun : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		if (networkView.isMine) {
+		if (networkView.isMine && (Network.isClient || Network.isServer)) {
 			if (controller.isGrounded) {
 				moveDirection = new Vector3 (Input.GetAxis ("Horizontal"), 0, 0);
 				moveDirection *= speed;
