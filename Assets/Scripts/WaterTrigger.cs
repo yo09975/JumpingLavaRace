@@ -16,7 +16,8 @@ public class WaterTrigger : MonoBehaviour {
 	{
 		if (col.tag == "Player")
 		{
-			splash.transform.position = new Vector3(col.transform.position.x, water.transform.position.y, col.transform.position.z);	
+			splash.transform.position = new Vector3(col.transform.position.x, water.transform.position.y, col.transform.position.z);
+			splash.GetComponent<AudioSource>().Play();
 			splash.particleSystem.Play();
 		}
 	}

@@ -9,6 +9,8 @@ public class PlayerRun : MonoBehaviour
 	public float gravity = 20.0f;
 	public Material[] playerColors;
 	public string[] playerNames;
+	public AudioClip jumpSound;
+	
 	
 	private Vector3 moveDirection = Vector3.zero;
 	
@@ -51,6 +53,8 @@ public class PlayerRun : MonoBehaviour
 				
 				if (Input.GetButton ("Jump")) {
 					moveDirection.y = jumpSpeed;
+					audio.clip = jumpSound;
+					audio.Play();
 				}
 			}
 			else
