@@ -63,7 +63,7 @@ public class PlayerRun : MonoBehaviour
 				{
 					controller.velocity.Set(0.0f, 0.0f, 0.0f);
 					moveDirection = Vector3.zero;
-					transform.position = new Vector3(impact.x - 3, 3.0f, impact.z);
+					transform.position = new Vector3(impact.x - 3, 3.0f, Mathf.Round(impact.z));
 					impact = Vector3.zero;
 				}
 			}
