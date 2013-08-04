@@ -17,6 +17,17 @@ public class PlayerRun : MonoBehaviour
 			if (controller.isGrounded) {
 				moveDirection = new Vector3 (Input.GetAxis ("Horizontal"), 0, 0);
 				moveDirection *= speed;
+				
+				if (moveDirection.magnitude > 0)
+				{
+					Animation anim = gameObject.GetComponentInChildren<Animation>();
+					anim.Play("Run");
+				} 
+				else
+				{
+					Animation anim = gameObject.GetComponentInChildren<Animation>();
+					anim.Play("Standing");
+				}
 		
 				if (moveDirection.sqrMagnitude > 0.01) {
 					transform.rotation = Quaternion.Slerp (transform.rotation, Quaternion.LookRotation (moveDirection), 1);
