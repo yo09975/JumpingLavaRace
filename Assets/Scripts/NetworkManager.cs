@@ -3,14 +3,16 @@ using System.Collections;
 
 public class NetworkManager : MonoBehaviour
 {
-	public string gameName = "Super Lava Race";
+	public string gameName = "Jumping Jellybean Race";
 	public GameObject playerPrefab;
 	public Transform[] spawnObjects;
+	
+	private int playerNumber = -1;
+	public int currentPlayers = 0;
 	private bool refreshing = false;
 	private HostData[] hostData;
 	private float btnX, btnY, btnWidth, btnHeight;
 	private int maxPlayers = 4;
-	private int currentPlayers = 0;
 	
 	// Use this for initialization
 	void Start ()
@@ -24,7 +26,7 @@ public class NetworkManager : MonoBehaviour
 	void startServer ()
 	{
 		Network.InitializeServer (maxPlayers, 25000, !Network.HavePublicAddress ());
-		MasterServer.RegisterHost (gameName, "Lava Race", "AWESOME!");
+		MasterServer.RegisterHost (gameName, "Jellybean Race", "AWESOME!");
 	}
 	
 	void refreshHostList ()
@@ -36,16 +38,37 @@ public class NetworkManager : MonoBehaviour
 	
 	void spawnPlayer ()
 	{
-		if(currentPlayers < maxPlayers){
-			Debug.Log("Current Players: " + currentPlayers);
-			// CurrentPlayers isn't updating, seems to only be incrememting on individual machines, not through network.
-			Network.Instantiate (playerPrefab, spawnObjects[currentPlayers].position, Quaternion.identity, 0);		
-			currentPlayers++;	
+		networkView.RPC("GetCurrentPlayers", RPCMode.All);
+	}
+	
+	[RPC]
+	void GetCurrentPlayers()
+	{
+		if (Network.isServer)
+		{
+			Debug.Log("Network is server.");
+			networkView.RPC("SetCurrentPlayers", RPCMode.All, Network.connections.Length);	
 		}
-		else {
-			Debug.Log("Maximum players reached, cannot create new player!");			
-		}
+	}
+			
+	[RPC]
+	void SetCurrentPlayers(int size)
+	{
+		Debug.Log("Setting Current Players");
+		currentPlayers = size;
 		
+		if (playerNumber == -1)
+		{
+			Debug.Log("ID Matches.");
+			if(currentPlayers < maxPlayers){
+			//playerPrefab.GetComponentInChildren<Animation>().gameObject.GetComponentInChildren<SkinnedMeshRenderer>().material.SetTexture("Base (RGB)", playerColors[currentPlayers]);
+				playerNumber = currentPlayers;
+				Network.Instantiate (playerPrefab, spawnObjects[currentPlayers].position, Quaternion.identity, 0);		
+			}
+			else {
+				Debug.Log("Maximum players reached, cannot create new player!");			
+			}
+		}
 	}
 	
 	// Messages

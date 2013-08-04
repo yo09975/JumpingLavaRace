@@ -7,13 +7,33 @@ public class PlayerRun : MonoBehaviour
 	public float speed = 6.0f;
 	public float jumpSpeed = 8.0f;
 	public float gravity = 20.0f;
+	public Material[] playerColors;
+	public string[] playerNames;
+	
 	private Vector3 moveDirection = Vector3.zero;
 	
 	private CharacterController controller;
+	private Animation anim;
 	
 	void Start()
 	{
-		controller = GetComponent<CharacterController>();	
+		controller = GetComponent<CharacterController>();
+		anim = gameObject.GetComponentInChildren<Animation>();
+		
+		int numberOfPlayers = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().currentPlayers;
+		gameObject.name = playerNames[numberOfPlayers];
+		foreach (Transform obj in gameObject.transform)
+		{
+			foreach (Transform obj2 in obj)
+			{
+				if (obj2.name == "Cylinder002")
+				{
+					Debug.Log("Setting Color");
+					obj2.renderer.material = playerColors[numberOfPlayers];
+					break;
+				}
+			}
+		}
 	}
 	
 	// Update is called once per frame
@@ -32,22 +52,37 @@ public class PlayerRun : MonoBehaviour
 					moveDirection.y = jumpSpeed;
 				}
 			}
+			
+			if (controller.velocity.magnitude > 0)
+			{
+				networkView.RPC("UpdateAnimation", RPCMode.OthersBuffered, false);
+				anim.CrossFade("Run", 0.1f);
+			} 
+			else
+			{
+				networkView.RPC("UpdateAnimation", RPCMode.OthersBuffered, true);
+				anim.CrossFade("Standing", 0.1f);
+			}
 		
 			moveDirection.y -= gravity * Time.deltaTime;
 		
 			controller.Move (moveDirection * Time.deltaTime);
 		}
-		
-		if (controller.velocity.magnitude > 0)
+	}
+	
+	[RPC]
+	void UpdateAnimation(bool standing)
+	{
+		if (anim != null)
 		{
-			Debug.Log("Velocity is over 9000");
-			Animation anim = gameObject.GetComponentInChildren<Animation>();
-			anim.Play("Run");
-		} 
-		else
-		{
-			Animation anim = gameObject.GetComponentInChildren<Animation>();
-			anim.Play("Standing");
+			if (standing)
+			{
+				anim.CrossFade("Standing", 0.1f);
+			}
+			else
+			{
+				anim.CrossFade("Run", 0.1f);
+			}
 		}
 	}
 }

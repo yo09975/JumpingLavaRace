@@ -11,8 +11,8 @@ public class FinishLine : MonoBehaviour {
 		if (col.tag == "Player")
 		{
 			Time.timeScale = 0;	
-			back.text = back.text.Replace("?", col.name);
-			front.text = front.text.Replace("?", col.name);
+			back.text = back.text.Replace("?", col.name).Replace("(Clone)", "");
+			front.text = front.text.Replace("?", col.name).Replace("(Clone)", "");
 			back.enabled = true;
 			front.enabled = true;
 		}
