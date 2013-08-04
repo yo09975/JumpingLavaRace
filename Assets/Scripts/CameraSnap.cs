@@ -18,10 +18,26 @@ public class CameraSnap : MonoBehaviour {
 	// Update is called once per frame
 	void LateUpdate () {
 		
-		players = GameObject.FindGameObjectsWithTag("Player");
-		
-		foreach (GameObject obj in players)
+		if (leader == null)
 		{
+			players = GameObject.FindGameObjectsWithTag("Player");	
+			
+			foreach (GameObject obj in players)
+			{
+				if (obj.networkView.isMine)
+				{
+					leader = obj;	
+				}
+			}
+		}
+		
+		
+		/*foreach (GameObject obj in players)
+		{
+			if (obj.networkView.isMine)
+			{
+				leader = obj;
+			}
 			if (leader == null)
 			{
 				if (obj.transform.position.y > 0)
@@ -36,16 +52,20 @@ public class CameraSnap : MonoBehaviour {
 					leader = obj;
 				}
 			}
-		}
+		}*/
 		
-		if (leader == null)
+		
+		if (leader == null || leader.transform.position.y < 0)
 		{
-			leader = splash;
+			transform.position = new Vector3(splash.transform.position.x, verticalOffset, distance);
+		}
+		else
+		{
+			transform.position = new Vector3(leader.transform.position.x, verticalOffset, distance);	
 		}
 		
-		transform.position = new Vector3(leader.transform.position.x, verticalOffset, distance);
 		//transform.LookAt(leader.transform);	
 	
-		leader = null;
+		//leader = null;
 	}
 }
