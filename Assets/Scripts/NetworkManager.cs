@@ -5,7 +5,7 @@ public class NetworkManager : MonoBehaviour
 {
 	public string gameName = "Super Lava Race";
 	public GameObject playerPrefab;
-	public Transform spawnObject;
+	public Transform[] spawnObjects;
 	private bool refreshing = false;
 	private HostData[] hostData;
 	private float btnX, btnY, btnWidth, btnHeight;
@@ -37,10 +37,13 @@ public class NetworkManager : MonoBehaviour
 	void spawnPlayer ()
 	{
 		if(currentPlayers < maxPlayers){
-		Network.Instantiate (playerPrefab, spawnObject.position, Quaternion.identity, 0);		
-		currentPlayers++;	
-		}else{
-		Debug.Log("Maximum players reached, cannot create new player!");			
+			Debug.Log("Current Players: " + currentPlayers);
+			// CurrentPlayers isn't updating, seems to only be incrememting on individual machines, not through network.
+			Network.Instantiate (playerPrefab, spawnObjects[currentPlayers].position, Quaternion.identity, 0);		
+			currentPlayers++;	
+		}
+		else {
+			Debug.Log("Maximum players reached, cannot create new player!");			
 		}
 		
 	}
