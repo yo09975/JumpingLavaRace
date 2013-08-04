@@ -55,7 +55,7 @@ public class CameraSnap : MonoBehaviour {
 		}*/
 		
 		
-		if (leader == null || leader.transform.position.y < 0)
+		if (leader == null || leader.transform.position.y < -1)
 		{
 			transform.position = new Vector3(splash.transform.position.x, verticalOffset, distance);
 		}
