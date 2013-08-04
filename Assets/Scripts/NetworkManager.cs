@@ -9,6 +9,8 @@ public class NetworkManager : MonoBehaviour
 	private bool refreshing = false;
 	private HostData[] hostData;
 	private float btnX, btnY, btnWidth, btnHeight;
+	private int maxPlayers = 4;
+	private int currentPlayers = 0;
 	
 	// Use this for initialization
 	void Start ()
@@ -21,7 +23,7 @@ public class NetworkManager : MonoBehaviour
 	
 	void startServer ()
 	{
-		Network.InitializeServer (32, 25000, !Network.HavePublicAddress ());
+		Network.InitializeServer (maxPlayers, 25000, !Network.HavePublicAddress ());
 		MasterServer.RegisterHost (gameName, "Lava Race", "AWESOME!");
 	}
 	
@@ -34,7 +36,13 @@ public class NetworkManager : MonoBehaviour
 	
 	void spawnPlayer ()
 	{
+		if(currentPlayers < maxPlayers){
 		Network.Instantiate (playerPrefab, spawnObject.position, Quaternion.identity, 0);		
+		currentPlayers++;	
+		}else{
+		Debug.Log("Maximum players reached, cannot create new player!");			
+		}
+		
 	}
 	
 	// Messages
@@ -56,6 +64,34 @@ public class NetworkManager : MonoBehaviour
 			Debug.Log ("Registration of server successful!");		
 		}
 	}
+	
+	//void OnNetworkInstantiate(){
+		// probably should do something clever here
+		
+	//}
+	
+	void OnPlayerDisconnected(NetworkPlayer player) {
+		Debug.Log("Clean up after player " +  player);
+		Network.RemoveRPCs(player);
+		Network.DestroyPlayerObjects(player);
+	}
+	
+	void OnFailedToConnect(NetworkConnectionError error){
+		Debug.Log("Could not connect to server: "+ error);
+	}
+	
+	void OnDisconnectedFromServer(NetworkDisconnection info) {
+	if (Network.isServer) {
+			Debug.Log("Local server connection disconnected");
+		}
+		else {
+			if (info == NetworkDisconnection.LostConnection)
+				Debug.Log("Lost connection to the server");
+			else
+				Debug.Log("Successfully disconnected from the server");
+		}
+	}
+	
 	// Update is called once per frame
 	void Update ()
 	{
