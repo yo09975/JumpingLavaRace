@@ -14,6 +14,7 @@ public class PlayerRun : MonoBehaviour
 	
 	private CharacterController controller;
 	private Animation anim;
+	private Vector3 impact;
 	
 	void Start()
 	{
@@ -50,6 +51,20 @@ public class PlayerRun : MonoBehaviour
 				
 				if (Input.GetButton ("Jump")) {
 					moveDirection.y = jumpSpeed;
+				}
+			}
+			else
+			{
+				if (transform.position.y < 0 && impact == Vector3.zero)
+				{
+					impact = transform.position;
+				}
+				if (transform.position.y < -20)
+				{
+					controller.velocity.Set(0.0f, 0.0f, 0.0f);
+					moveDirection = Vector3.zero;
+					transform.position = new Vector3(impact.x - 3, 3.0f, impact.z);
+					impact = Vector3.zero;
 				}
 			}
 			
