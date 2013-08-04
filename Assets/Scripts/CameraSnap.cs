@@ -12,13 +12,13 @@ public class CameraSnap : MonoBehaviour {
 	
 	void Start()
 	{
-		players = GameObject.FindGameObjectsWithTag("Player");
-		
 		splash = GameObject.FindGameObjectWithTag("Water Splash");
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
+		
+		players = GameObject.FindGameObjectsWithTag("Player");
 		
 		foreach (GameObject obj in players)
 		{
