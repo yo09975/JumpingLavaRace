@@ -72,6 +72,12 @@ public class PlayerRun : MonoBehaviour
 				}
 			}
 			
+			if(!controller.isGrounded)
+			{
+				moveDirection.x = Input.GetAxis("Horizontal");
+				moveDirection.x *= speed;
+			}
+			
 			if (controller.velocity.magnitude > 0)
 			{
 				networkView.RPC("UpdateAnimation", RPCMode.OthersBuffered, false);
