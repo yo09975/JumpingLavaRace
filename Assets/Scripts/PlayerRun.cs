@@ -10,7 +10,9 @@ public class PlayerRun : MonoBehaviour
 	public Material[] playerColors;
 	public string[] playerNames;
 	public AudioClip jumpSound;
+	public GameObject splashPrefab;
 	
+	private GameObject splash;
 	
 	private Vector3 moveDirection = Vector3.zero;
 	
@@ -22,6 +24,7 @@ public class PlayerRun : MonoBehaviour
 	{
 		controller = GetComponent<CharacterController>();
 		anim = gameObject.GetComponentInChildren<Animation>();
+		splash = (GameObject)Instantiate(splashPrefab);
 		
 		int numberOfPlayers = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().currentPlayers;
 		gameObject.name = playerNames[numberOfPlayers];
@@ -37,6 +40,11 @@ public class PlayerRun : MonoBehaviour
 				}
 			}
 		}
+	}
+	
+	public GameObject getSplash()
+	{
+		return splash;	
 	}
 	
 	// Update is called once per frame
