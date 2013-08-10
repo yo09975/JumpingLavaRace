@@ -7,8 +7,6 @@ public class NetworkManager : MonoBehaviour
 	public GameObject playerPrefab;
 	public Transform[] spawnObjects;
 	
-	private int playerNumber = -1;
-	public int currentPlayers = 0;
 	private bool refreshing = false;
 	private HostData[] hostData;
 	private float btnX, btnY, btnWidth, btnHeight;
@@ -29,65 +27,41 @@ public class NetworkManager : MonoBehaviour
 		MasterServer.RegisterHost (gameName, "Jellybean Race", "AWESOME!");
 	}
 	
-	void refreshHostList ()
+	void refreshHostList()
 	{
 		MasterServer.RequestHostList (gameName);
 		refreshing = true;
 		MasterServer.PollHostList ();
 	}
 	
-	void spawnPlayer ()
-	{
-		networkView.RPC("GetCurrentPlayers", RPCMode.All);
-	}
-	
-	[RPC]
-	void GetCurrentPlayers()
-	{
-		if (Network.isServer)
-		{
-			Debug.Log("Network is server.");
-			networkView.RPC("SetCurrentPlayers", RPCMode.All, Network.connections.Length);	
-		}
-	}
-			
-	[RPC]
-	void SetCurrentPlayers(int size)
-	{
-		Debug.Log("Setting Current Players");
-		currentPlayers = size;
-		
-		if (playerNumber == -1)
-		{
-			Debug.Log("ID Matches.");
-			if(currentPlayers < maxPlayers){
-			//playerPrefab.GetComponentInChildren<Animation>().gameObject.GetComponentInChildren<SkinnedMeshRenderer>().material.SetTexture("Base (RGB)", playerColors[currentPlayers]);
-				playerNumber = currentPlayers;
-				Network.Instantiate (playerPrefab, spawnObjects[currentPlayers].position, Quaternion.identity, 0);		
-			}
-			else {
-				Debug.Log("Maximum players reached, cannot create new player!");			
-			}
-		}
+	void SpawnPlayer(NetworkPlayer player)
+	{	
+		int playerNumber = System.Convert.ToInt32(player.ToString());
+		GameObject newPlayer = (GameObject)Network.Instantiate(playerPrefab, spawnObjects[playerNumber].position, Quaternion.identity, 0);
+		newPlayer.networkView.RPC("SetOwner", RPCMode.AllBuffered, player);
 	}
 	
 	// Messages
-	void OnServerInitialized ()
+	void OnServerInitialized()
 	{
-		Debug.Log ("Server intialized");
-		spawnPlayer ();
+		Debug.Log("Server intialized");
+		SpawnPlayer(Network.player);
 	}
 	
-	void OnConnectedToServer ()
+	void OnConnectedToServer()
 	{
-		Debug.Log("Player connected, spawning player!");
-		spawnPlayer ();	
+		SpawnPlayer(Network.player);	
 	}
 	
-	void OnMasterServerEvent (MasterServerEvent mse)
+	void OnPlayerConnected(NetworkPlayer player)
+	{
+		
+	}
+	
+	void OnMasterServerEvent(MasterServerEvent mse)
 	{
 		if (mse == MasterServerEvent.RegistrationSucceeded) {
-			Debug.Log ("Registration of server successful!");		
+			Debug.Log("Registration of server successful!");		
 		}
 	}
 	

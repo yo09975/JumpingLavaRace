@@ -12,6 +12,8 @@ public class PlayerRun : MonoBehaviour
 	public AudioClip jumpSound;
 	public GameObject splashPrefab;
 	
+	private NetworkPlayer owner;
+	
 	private GameObject splash;
 	
 	private Vector3 moveDirection = Vector3.zero;
@@ -25,9 +27,21 @@ public class PlayerRun : MonoBehaviour
 		controller = GetComponent<CharacterController>();
 		anim = gameObject.GetComponentInChildren<Animation>();
 		splash = (GameObject)Instantiate(splashPrefab);
+	}
+	
+	public GameObject getSplash()
+	{
+		return splash;	
+	}
+	
+	[RPC]
+	void SetOwner(NetworkPlayer player)
+	{
+		owner = player;
 		
-		int numberOfPlayers = GameObject.Find("NetworkManager").GetComponent<NetworkManager>().currentPlayers;
-		gameObject.name = playerNames[numberOfPlayers];
+		int playerIndex = System.Convert.ToInt32(owner.ToString());
+		
+		gameObject.name = playerNames[playerIndex];
 		foreach (Transform obj in gameObject.transform)
 		{
 			foreach (Transform obj2 in obj)
@@ -35,16 +49,11 @@ public class PlayerRun : MonoBehaviour
 				if (obj2.name == "Cylinder002")
 				{
 					Debug.Log("Setting Color");
-					obj2.renderer.material = playerColors[numberOfPlayers];
+					obj2.renderer.material = playerColors[playerIndex];
 					break;
 				}
 			}
 		}
-	}
-	
-	public GameObject getSplash()
-	{
-		return splash;	
 	}
 	
 	// Update is called once per frame
