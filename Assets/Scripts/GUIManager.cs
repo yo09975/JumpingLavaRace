@@ -6,11 +6,15 @@ public class GUIManager : MonoBehaviour {
 	float midX;
 	float midY;
 	
-	bool preGame;
+	bool preGame = true;
+	bool gameOver = false;
 	bool countingDown = false;
 	int countDownStart = 3;
 	float countDownTime = 0;
 	string countDownText = "GO!";
+	string winnerName;
+	
+	string startText = "Start Game";
 	
 	public GUIStyle countDownStyle;
 	
@@ -19,8 +23,6 @@ public class GUIManager : MonoBehaviour {
 	{
 		midX = Screen.width * 0.5f;
 		midY = Screen.height * 0.5f;
-		
-		preGame = true;
 	}
 	
 	void OnGUI ()
@@ -34,7 +36,7 @@ public class GUIManager : MonoBehaviour {
 		{
 			if (preGame)
 			{
-				if (GUI.Button (new Rect(midX, midY, 100, 40), "Start Game"))
+				if (GUI.Button (new Rect(midX - 50, midY - 100, 100, 40), startText))
 				{
 					Debug.Log("Hit Start Game button");
 					preGame = false;
@@ -42,7 +44,10 @@ public class GUIManager : MonoBehaviour {
 				}
 			}
 		}
-		
+		if (gameOver)
+		{
+			GUI.Label(new Rect(midX, midY, 100, 100), winnerName, countDownStyle);	
+		}
 		if (countingDown)
 		{
 			CountDown();
@@ -72,13 +77,31 @@ public class GUIManager : MonoBehaviour {
 				}
 			}
 		}
-		
+	}
+	
+	public void GameOver(Collider winner)
+	{
+		gameOver = true;
+		winnerName = winner.name + " Wins!";
+		preGame = true;
+		startText = "Restart Game";
+		foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
+		{
+			Debug.Log("Calling AfterGame");
+			obj.networkView.RPC("AfterGame", RPCMode.AllBuffered);
+		}
 	}
 	
 	[RPC]
 	void StartGame()
 	{
+		gameOver = false;
 		countDownTime = countDownStart;
+		foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
+		{
+			Debug.Log("Calling Position Player");
+			obj.GetComponent<PlayerRun>().PositionPlayer();
+		}
 		countingDown = true;
 	}
 }

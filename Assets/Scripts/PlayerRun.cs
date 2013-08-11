@@ -14,6 +14,7 @@ public class PlayerRun : MonoBehaviour
 	
 	private NetworkPlayer owner;
 	private bool preGame = true;
+	private Transform[] spawnObjects;
 	
 	private GameObject splash;
 	
@@ -28,11 +29,21 @@ public class PlayerRun : MonoBehaviour
 		controller = GetComponent<CharacterController>();
 		anim = gameObject.GetComponentInChildren<Animation>();
 		splash = (GameObject)Instantiate(splashPrefab);
+		
+		spawnObjects = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkManager>().spawnObjects;
 	}
 	
 	public GameObject getSplash()
 	{
 		return splash;	
+	}
+	
+	public void PositionPlayer()
+	{
+		if (networkView.isMine)
+		{
+			transform.position = spawnObjects[System.Convert.ToInt32(Network.player.ToString())].transform.position;	
+		}
 	}
 	
 	[RPC]
@@ -62,6 +73,13 @@ public class PlayerRun : MonoBehaviour
 	{
 		Debug.Log("Starting game on player:" + Network.player.ToString());
 		preGame = false;	
+	}
+	
+	[RPC]
+	void AfterGame()
+	{
+		Debug.Log("Entering after game on player:" + Network.player.ToString());
+		preGame = true;	
 	}
 	
 	// Update is called once per frame
@@ -111,6 +129,10 @@ public class PlayerRun : MonoBehaviour
 				if (!preGame)
 				{
 					moveDirection.x = Input.GetAxis("Horizontal");
+				}
+				else
+				{
+					moveDirection.x = 0;
 				}
 				moveDirection.x *= speed;
 			}
