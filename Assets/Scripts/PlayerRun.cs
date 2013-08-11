@@ -86,6 +86,7 @@ public class PlayerRun : MonoBehaviour
 				
 				if (Input.GetButton ("Jump")) {
 					moveDirection.y = jumpSpeed;
+					networkView.RPC("PlayJumpSound", RPCMode.Others);
 					audio.clip = jumpSound;
 					audio.Play();
 				}
@@ -129,6 +130,13 @@ public class PlayerRun : MonoBehaviour
 		
 			controller.Move (moveDirection * Time.deltaTime);
 		}
+	}
+	
+	[RPC]
+	void PlayJumpSound()
+	{
+		audio.clip = jumpSound;
+		audio.Play();
 	}
 	
 	[RPC]
