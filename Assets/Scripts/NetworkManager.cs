@@ -53,22 +53,12 @@ public class NetworkManager : MonoBehaviour
 		SpawnPlayer(Network.player);	
 	}
 	
-	void OnPlayerConnected(NetworkPlayer player)
-	{
-		
-	}
-	
 	void OnMasterServerEvent(MasterServerEvent mse)
 	{
 		if (mse == MasterServerEvent.RegistrationSucceeded) {
 			Debug.Log("Registration of server successful!");		
 		}
 	}
-	
-	//void OnNetworkInstantiate(){
-		// probably should do something clever here
-		
-	//}
 	
 	void OnPlayerDisconnected(NetworkPlayer player) {
 		Debug.Log("Clean up after player " +  player);

@@ -13,6 +13,7 @@ public class PlayerRun : MonoBehaviour
 	public GameObject splashPrefab;
 	
 	private NetworkPlayer owner;
+	private bool preGame = true;
 	
 	private GameObject splash;
 	
@@ -56,12 +57,27 @@ public class PlayerRun : MonoBehaviour
 		}
 	}
 	
+	[RPC]
+	void StartGame()
+	{
+		Debug.Log("Starting game on player:" + Network.player.ToString());
+		preGame = false;	
+	}
+	
 	// Update is called once per frame
 	void Update ()
 	{
 		if (networkView.isMine && (Network.isClient || Network.isServer)) {
+			
 			if (controller.isGrounded) {
-				moveDirection = new Vector3 (Input.GetAxis ("Horizontal"), 0, 0);
+				if (!preGame)
+				{
+					moveDirection = new Vector3 (Input.GetAxis ("Horizontal"), 0, 0);
+				}
+				else
+				{
+					moveDirection = new Vector3 (0, 0, 0);
+				}
 				moveDirection *= speed;
 		
 				if (moveDirection.sqrMagnitude > 0.01) {
@@ -91,7 +107,10 @@ public class PlayerRun : MonoBehaviour
 			
 			if(!controller.isGrounded)
 			{
-				moveDirection.x = Input.GetAxis("Horizontal");
+				if (!preGame)
+				{
+					moveDirection.x = Input.GetAxis("Horizontal");
+				}
 				moveDirection.x *= speed;
 			}
 			
