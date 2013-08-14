@@ -15,14 +15,39 @@ public class GUIManager : MonoBehaviour {
 	string winnerName;
 	
 	string startText = "Start Game";
+	GameObject[] players;
 	
 	public GUIStyle countDownStyle;
+	public GameObject leaderboardPrefab;
+	public string[] playerNames;
+	public Texture[] playerColors;
+	Hashtable nameToTextureMap;
+	LeaderboardController[] leaderboardController;
+	PositionComparer leaderboardComparer;
+	float leaderboardWidth = 100.0f;
+	float leaderboardBuffer = 10.0f;
 	
 	
 	void Start()
 	{
 		midX = Screen.width * 0.5f;
 		midY = Screen.height * 0.5f;
+		
+		leaderboardComparer = new PositionComparer();
+		
+		nameToTextureMap = new Hashtable();
+		for (int index = 0; index < playerNames.Length; index++)
+		{
+			nameToTextureMap.Add(playerNames[index], playerColors[index]);
+		}
+	}
+	
+	void Update()
+	{
+		if (!preGame)
+		{
+			UpdateLeaderboard();	
+		}
 	}
 	
 	void OnGUI ()
@@ -39,7 +64,6 @@ public class GUIManager : MonoBehaviour {
 				if (GUI.Button (new Rect(midX - 50, midY - 100, 100, 40), startText))
 				{
 					Debug.Log("Hit Start Game button");
-					preGame = false;
 					networkView.RPC("StartGame", RPCMode.AllBuffered);
 				}
 			}
@@ -51,6 +75,45 @@ public class GUIManager : MonoBehaviour {
 		if (countingDown)
 		{
 			CountDown();
+		}
+	}
+	
+	void InitializeLeaderboard()
+	{
+		if (startText == "Start Game")
+		{
+			players = GameObject.FindGameObjectsWithTag("Player");
+			int size = players.Length;
+			leaderboardController = new LeaderboardController[size];
+			float spaceFromTop = 1 - ((leaderboardWidth + 2 * leaderboardBuffer) / Screen.height);
+			float spaceBetween = (leaderboardBuffer + leaderboardWidth) / Screen.width;
+			float startPosition = (midX + ((size - 2) * leaderboardWidth/2) + (size%2==0?leaderboardBuffer/2:0) + Mathf.FloorToInt((size - 1) / 2.0f) * leaderboardBuffer) / Screen.width;
+			
+			for (int index = 0; index < size; index++)
+			{
+				GameObject leaderboard = (GameObject)GameObject.Instantiate(leaderboardPrefab, new Vector3(startPosition - (spaceBetween * index), spaceFromTop, 0), Quaternion.identity);
+				leaderboardController[index] = leaderboard.GetComponent<LeaderboardController>();
+				leaderboardController[index].text.text = (index+1).ToString();
+			}
+		}
+	}
+	
+	void UpdateLeaderboard()
+	{
+		ArrayList tempPlayers = new ArrayList(players);
+		tempPlayers.Sort(leaderboardComparer);
+		int index = 0;
+		foreach (GameObject player in tempPlayers)
+		{
+			leaderboardController[index++].color.texture = (Texture)nameToTextureMap[player.name];
+		}
+	}
+	
+	private class PositionComparer : IComparer
+	{
+		public int Compare (object x, object y)
+		{
+			return ((GameObject)y).transform.position.x.CompareTo(((GameObject)x).transform.position.x);	
 		}
 	}
 	
@@ -95,7 +158,9 @@ public class GUIManager : MonoBehaviour {
 	[RPC]
 	void StartGame()
 	{
+		preGame = false;
 		gameOver = false;
+		InitializeLeaderboard();
 		countDownTime = countDownStart;
 		foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
 		{
